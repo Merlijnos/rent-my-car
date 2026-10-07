@@ -1,0 +1,28 @@
+product: jvm/app
+
+dependencies:
+  - $ktor.server.netty
+  - $ktor.server.contentNegotiation
+  - $ktor.serialization.kotlinx.json
+  - $ktor.server.statusPages
+  - $ktor.server.config.yaml
+  - org.jetbrains.exposed:exposed-core:0.61.0
+  - org.jetbrains.exposed:exposed-jdbc:0.61.0
+  - com.h2database:h2:2.3.232
+  - ch.qos.logback:logback-classic:1.5.35
+
+test-dependencies:
+  - $ktor.server.testHost
+  - $ktor.client.contentNegotiation
+
+settings:
+  ktor:
+    enabled: true
+    version: 3.6.0
+  kotlin:
+    version: 2.4.10
+    serialization: enabled
+  jvm:
+    jdk: { version: 25 }
+    release: 25
+    mainClass: rentmycar.ServerKt

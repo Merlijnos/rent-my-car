@@ -1,0 +1,7 @@
+build/
+.kotlin/
+.idea/
+.env
+.env.*
+!.env.example
+
