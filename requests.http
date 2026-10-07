@@ -1,0 +1,91 @@
+@base = http://localhost:8080
+
+### All cars
+GET {{base}}/cars
+
+### Only electric cars
+GET {{base}}/cars?category=BEV
+
+### Combustion cars up to 20 euro per daypart
+GET {{base}}/cars?category=ICE&maxPricePerDaypart=20
+
+### One car
+GET {{base}}/cars/1
+
+### Add a car; the HTTP Client stores its id for the next requests
+POST {{base}}/cars
+Content-Type: application/json
+
+{
+  "category": "BEV",
+  "brand": "Skoda",
+  "model": "Elroq 85",
+  "pricePerDaypart": 30.0,
+  "fixedCostsPerYear": 3800.0,
+  "consumptionPer100Km": 15.8
+}
+
+> {% client.global.set("carId", response.body.id); %}
+
+### The new car
+GET {{base}}/cars/{{carId}}
+
+### Change the price of the new car
+PUT {{base}}/cars/{{carId}}
+Content-Type: application/json
+
+{
+  "category": "BEV",
+  "brand": "Skoda",
+  "model": "Elroq 85",
+  "pricePerDaypart": 27.5,
+  "fixedCostsPerYear": 3800.0,
+  "consumptionPer100Km": 15.8
+}
+
+### Costs for 15000 km per year (the default)
+GET {{base}}/cars/{{carId}}/costs
+
+### Costs for 25000 km per year
+GET {{base}}/cars/{{carId}}/costs?kmPerYear=25000
+
+### Delete the new car → 204
+DELETE {{base}}/cars/{{carId}}
+
+### The deleted car is gone → 404
+GET {{base}}/cars/{{carId}}
+
+### Unknown id → 404
+GET {{base}}/cars/999
+
+### Id is not a number → 400
+GET {{base}}/cars/abc
+
+### Unknown category → 400
+GET {{base}}/cars?category=STEAM
+
+### Consumption must be greater than 0 → 400
+POST {{base}}/cars
+Content-Type: application/json
+
+{
+  "category": "BEV",
+  "brand": "Kia",
+  "model": "EV3",
+  "pricePerDaypart": 25.0,
+  "fixedCostsPerYear": 3000.0,
+  "consumptionPer100Km": 0
+}
+
+### A combustion car needs a fuel type → 400
+POST {{base}}/cars
+Content-Type: application/json
+
+{
+  "category": "ICE",
+  "brand": "Opel",
+  "model": "Corsa",
+  "pricePerDaypart": 14.0,
+  "fixedCostsPerYear": 2000.0,
+  "consumptionPer100Km": 5.0
+}
