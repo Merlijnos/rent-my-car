@@ -12,8 +12,25 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-class CarRepository(private val database: Database) {
-    fun findAll(category: CarCategory? = null, maxPricePerDaypart: Double? = null): List<Car> =
+/** Stores cars. The routes only use this interface, so they do not depend on the database. */
+interface CarRepository {
+    fun findAll(category: CarCategory? = null, maxPricePerDaypart: Double? = null): List<Car>
+
+    fun findById(id: Int): Car?
+
+    /** Returns the stored car with its new id. */
+    fun create(car: Car): Car
+
+    /** Returns false when no car with this id exists. */
+    fun update(car: Car): Boolean
+
+    /** Returns false when no car with this id exists. */
+    fun delete(id: Int): Boolean
+}
+
+/** Stores cars in [CarTable] with Exposed. */
+class ExposedCarRepository(private val database: Database) : CarRepository {
+    override fun findAll(category: CarCategory?, maxPricePerDaypart: Double?): List<Car> =
         transaction(database) {
             val query = CarTable.selectAll().orderBy(CarTable.id)
             if (category != null) query.andWhere { CarTable.category eq category }
@@ -21,23 +38,23 @@ class CarRepository(private val database: Database) {
             query.map { it.toCar() }
         }
 
-    fun findById(id: Int): Car? =
+    override fun findById(id: Int): Car? =
         transaction(database) {
             CarTable.selectAll().where { CarTable.id eq id }.singleOrNull()?.toCar()
         }
 
-    fun create(car: Car): Car =
+    override fun create(car: Car): Car =
         transaction(database) {
             val id = CarTable.insertAndGetId { it.setValues(car) }
             CarTable.selectAll().where { CarTable.id eq id }.single().toCar()
         }
 
-    fun update(car: Car): Boolean =
+    override fun update(car: Car): Boolean =
         transaction(database) {
             CarTable.update({ CarTable.id eq car.id }) { it.setValues(car) } > 0
         }
 
-    fun delete(id: Int): Boolean =
+    override fun delete(id: Int): Boolean =
         transaction(database) {
             CarTable.deleteWhere { CarTable.id eq id } > 0
         }
