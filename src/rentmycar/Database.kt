@@ -6,16 +6,18 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import rentmycar.cars.BevCar
 import rentmycar.cars.CarRepository
 import rentmycar.cars.CarTable
+import rentmycar.cars.ExposedCarRepository
 import rentmycar.cars.FcevCar
 import rentmycar.cars.FuelType
 import rentmycar.cars.IceCar
 
+/** Connects to [url], creates the tables and adds the example cars. */
 fun connectDatabase(url: String): Database {
     val database = Database.connect(url, driver = "org.h2.Driver")
     transaction(database) {
         SchemaUtils.create(CarTable)
     }
-    seedCars(CarRepository(database))
+    seedCars(ExposedCarRepository(database))
     return database
 }
 

@@ -65,7 +65,7 @@ src/rentmycar/
   cars/
     Car.kt             domain: abstract Car with IceCar, BevCar and FcevCar
     CarTable.kt        database table
-    CarRepository.kt   reads and writes cars
+    CarRepository.kt   interface CarRepository and ExposedCarRepository, which reads and writes cars
     CarRoutes.kt       HTTP endpoints
     CarDtos.kt         JSON request and response classes
 test/rentmycar/cars/   unit tests (CarTest) and HTTP tests (CarRoutesTest)

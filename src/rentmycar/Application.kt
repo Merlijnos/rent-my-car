@@ -12,11 +12,13 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
 import kotlinx.serialization.Serializable
 import rentmycar.cars.CarRepository
+import rentmycar.cars.ExposedCarRepository
 import rentmycar.cars.carRoutes
 
 @Serializable
 data class ErrorResponse(val error: String)
 
+/** Installs JSON and error handling, connects the database and adds the routes. */
 fun Application.module(databaseUrl: String) {
     install(ContentNegotiation) { json() }
     install(StatusPages) {
@@ -32,7 +34,7 @@ fun Application.module(databaseUrl: String) {
     }
 
     val database = connectDatabase(databaseUrl)
-    val cars = CarRepository(database)
+    val cars: CarRepository = ExposedCarRepository(database)
 
     routing {
         carRoutes(cars)
