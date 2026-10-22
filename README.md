@@ -101,8 +101,13 @@ src/rentmycar/
   Database.kt          connects to H2, creates the tables, adds example data
   auth/                login and JWT (lesson 6 style)
   users/               User domain, table, repository, routes, DTOs
-  cars/                Car domain, table, repository, routes, DTOs
-test/rentmycar/        HTTP tests for auth, users and cars
+  cars/
+    Car.kt             domain: abstract Car with IceCar, BevCar and FcevCar
+    CarTable.kt        database table
+    CarRepository.kt   interface CarRepository and ExposedCarRepository, which reads and writes cars
+    CarRoutes.kt       HTTP endpoints
+    CarDtos.kt         JSON request and response classes
+test/rentmycar/        unit tests (CarTest) and HTTP tests for auth, users and cars
 ```
 
 Each feature gets its own folder with the same four parts: Table, Repository, Routes and Dtos.

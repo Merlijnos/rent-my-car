@@ -20,6 +20,7 @@ import rentmycar.users.Role
 
 private const val DEFAULT_KM_PER_YEAR = 15_000
 
+/** The /cars endpoints. A missing car throws NotFoundException, which StatusPages turns into a 404. */
 fun Route.carRoutes(cars: CarRepository) = route("/cars") {
     get {
         val category: CarCategory? by call.queryParameters

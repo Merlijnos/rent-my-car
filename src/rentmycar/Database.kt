@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import rentmycar.cars.BevCar
 import rentmycar.cars.CarRepository
 import rentmycar.cars.CarTable
+import rentmycar.cars.ExposedCarRepository
 import rentmycar.cars.FcevCar
 import rentmycar.cars.FuelType
 import rentmycar.cars.IceCar
@@ -14,6 +15,7 @@ import rentmycar.users.User
 import rentmycar.users.UserRepository
 import rentmycar.users.UserTable
 
+/** Connects to [url], creates the tables and adds the example cars. */
 fun connectDatabase(url: String): Database {
     val database = Database.connect(url, driver = "org.h2.Driver")
     transaction(database) {
@@ -21,7 +23,7 @@ fun connectDatabase(url: String): Database {
     }
     val users = UserRepository(database)
     val seededUsers = seedUsers(users)
-    seedCars(CarRepository(database), seededUsers)
+    seedCars(ExposedCarRepository(database), seededUsers)
     return database
 }
 

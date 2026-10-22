@@ -19,6 +19,7 @@ import rentmycar.auth.JwtService
 import rentmycar.auth.UserPrincipal
 import rentmycar.auth.authRoutes
 import rentmycar.cars.CarRepository
+import rentmycar.cars.ExposedCarRepository
 import rentmycar.cars.carRoutes
 import rentmycar.users.UserRepository
 import rentmycar.users.userRoutes
@@ -26,6 +27,7 @@ import rentmycar.users.userRoutes
 @Serializable
 data class ErrorResponse(val error: String)
 
+/** Installs JSON and error handling, connects the database and adds the routes. */
 fun Application.module(databaseUrl: String, jwtConfig: JwtConfig) {
     install(ContentNegotiation) { json() }
     install(StatusPages) {
@@ -45,7 +47,7 @@ fun Application.module(databaseUrl: String, jwtConfig: JwtConfig) {
 
     val database = connectDatabase(databaseUrl)
     val users = UserRepository(database)
-    val cars = CarRepository(database)
+    val cars: CarRepository = ExposedCarRepository(database)
     val jwt = JwtService(jwtConfig, users)
 
     install(Authentication) {
