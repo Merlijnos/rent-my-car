@@ -21,6 +21,7 @@ abstract class Car(
     val pricePerDaypart: Double,
     val fixedCostsPerYear: Double,
     val consumptionPer100Km: Double,
+    val ownerId: Int,
     val id: Int,
 ) {
     init {
@@ -49,15 +50,18 @@ abstract class Car(
             fixedCostsPerYear: Double,
             consumptionPer100Km: Double,
             fuelType: FuelType?,
+            ownerId: Int = 0,
             id: Int = 0,
         ): Car =
             when (category) {
                 CarCategory.ICE -> {
                     val fuel = requireNotNull(fuelType) { "fuelType is required for an ICE car" }
-                    IceCar(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, fuel, id)
+                    IceCar(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, fuel, ownerId, id)
                 }
-                CarCategory.BEV -> BevCar(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, id)
-                CarCategory.FCEV -> FcevCar(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, id)
+                CarCategory.BEV ->
+                    BevCar(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, ownerId, id)
+                CarCategory.FCEV ->
+                    FcevCar(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, ownerId, id)
             }
     }
 }
@@ -70,8 +74,9 @@ class IceCar(
     fixedCostsPerYear: Double,
     consumptionPer100Km: Double,
     val fuelType: FuelType,
+    ownerId: Int = 0,
     id: Int = 0,
-) : Car(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, id) {
+) : Car(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, ownerId, id) {
     override val category = CarCategory.ICE
 
     override fun costPerKm(): Double = fuelType.pricePerLiter * consumptionPer100Km / 100
@@ -84,8 +89,9 @@ class BevCar(
     pricePerDaypart: Double,
     fixedCostsPerYear: Double,
     consumptionPer100Km: Double,
+    ownerId: Int = 0,
     id: Int = 0,
-) : Car(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, id) {
+) : Car(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, ownerId, id) {
     override val category = CarCategory.BEV
 
     override fun costPerKm(): Double = PRICE_PER_KWH * consumptionPer100Km / 100
@@ -102,8 +108,9 @@ class FcevCar(
     pricePerDaypart: Double,
     fixedCostsPerYear: Double,
     consumptionPer100Km: Double,
+    ownerId: Int = 0,
     id: Int = 0,
-) : Car(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, id) {
+) : Car(brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, ownerId, id) {
     override val category = CarCategory.FCEV
 
     override fun costPerKm(): Double = PRICE_PER_KG * consumptionPer100Km / 100

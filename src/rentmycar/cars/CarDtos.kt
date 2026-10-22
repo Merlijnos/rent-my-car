@@ -13,8 +13,18 @@ data class CarRequest(
     val consumptionPer100Km: Double,
     val fuelType: FuelType? = null,
 ) {
-    fun toCar(id: Int = 0): Car =
-        Car.create(category, brand, model, pricePerDaypart, fixedCostsPerYear, consumptionPer100Km, fuelType, id)
+    fun toCar(ownerId: Int, id: Int = 0): Car =
+        Car.create(
+            category,
+            brand,
+            model,
+            pricePerDaypart,
+            fixedCostsPerYear,
+            consumptionPer100Km,
+            fuelType,
+            ownerId,
+            id,
+        )
 }
 
 @Serializable
@@ -27,6 +37,7 @@ data class CarResponse(
     val fixedCostsPerYear: Double,
     val consumptionPer100Km: Double,
     val fuelType: FuelType?,
+    val ownerId: Int,
 )
 
 @Serializable
@@ -47,6 +58,7 @@ fun Car.toResponse() =
         fixedCostsPerYear = fixedCostsPerYear,
         consumptionPer100Km = consumptionPer100Km,
         fuelType = (this as? IceCar)?.fuelType,
+        ownerId = ownerId,
     )
 
 fun Car.toCostsResponse(kmPerYear: Int) =

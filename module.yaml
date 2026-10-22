@@ -6,6 +6,8 @@ dependencies:
   - $ktor.serialization.kotlinx.json
   - $ktor.server.statusPages
   - $ktor.server.config.yaml
+  - $ktor.server.auth
+  - $ktor.server.auth.jwt
   - org.jetbrains.exposed:exposed-core:0.61.0
   - org.jetbrains.exposed:exposed-jdbc:0.61.0
   - com.h2database:h2:2.3.232

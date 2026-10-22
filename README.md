@@ -4,7 +4,10 @@ A Ktor Web API for renting out cars.
 Cars come in three categories: combustion engine (ICE), battery electric (BEV) and hydrogen fuel cell (FCEV).
 Each category calculates its own cost per kilometer and total cost of ownership.
 
-The API uses an H2 in-memory database: nothing to install, and every start begins with the same 8 example cars.
+Users register as **OWNER** (offer a car) or **RENTER** (rent a car) and log in with JWT,
+as covered in lesson 6. Each car is linked to its owner.
+
+The API uses an H2 in-memory database: nothing to install, and every start begins with the same example users and cars.
 Changes are lost when the server stops.
 
 ## Run
@@ -24,20 +27,54 @@ Open `requests.http` in IntelliJ to call every endpoint in order.
 ./kotlin test
 ```
 
+## Seeded users
+
+| Username | Password | Role |
+| --- | --- | --- |
+| paul | paul123 | OWNER |
+| sara | sara123 | OWNER |
+| lisa | lisa123 | RENTER |
+| tom | tom123 | RENTER |
+
 ## Endpoints
 
-| Method | Path | Result |
-| --- | --- | --- |
-| GET | `/cars` | All cars, optionally filtered with `?category=BEV` and `?maxPricePerDaypart=25` |
-| GET | `/cars/{id}` | One car, or 404 |
-| POST | `/cars` | Creates a car: 201 with the stored car |
-| PUT | `/cars/{id}` | Replaces a car: 200, or 404 |
-| DELETE | `/cars/{id}` | Deletes a car: 204, or 404 |
-| GET | `/cars/{id}/costs?kmPerYear=15000` | Cost per km and total cost of ownership (default 15000 km) |
+| Method | Path | Auth | Result |
+| --- | --- | --- | --- |
+| POST | `/users/register` | — | Creates a user (role `OWNER` or `RENTER`): 201 |
+| POST | `/auth/login` | — | Returns a JWT: `{"token":"..."}` , or 401 |
+| GET | `/users/me` | Bearer | The logged-in user (without password) |
+| GET | `/cars` | — | All cars, optionally filtered with `?category=BEV` and `?maxPricePerDaypart=25` |
+| GET | `/cars/{id}` | — | One car, or 404 |
+| POST | `/cars` | OWNER | Creates a car linked to the logged-in owner: 201 |
+| PUT | `/cars/{id}` | OWNER | Replaces own car: 200, or 403/404 |
+| DELETE | `/cars/{id}` | OWNER | Deletes own car: 204, or 403/404 |
+| GET | `/cars/{id}/costs?kmPerYear=15000` | — | Cost per km and total cost of ownership (default 15000 km) |
 
-Invalid input returns 400 and a missing car 404, both with a body like `{"error": "Car 42 not found"}`.
+Invalid input returns 400, missing resources 404, wrong credentials 401 and forbidden actions 403,
+all with a body like `{"error": "Car 42 not found"}`.
 
-A car in a request body (`fuelType` is PETROL, DIESEL or LPG, and only needed for ICE):
+Register:
+
+```json
+{
+  "username": "marie",
+  "password": "marie123",
+  "email": "marie@rentmycar.nl",
+  "role": "OWNER"
+}
+```
+
+Login:
+
+```json
+{
+  "username": "paul",
+  "password": "paul123"
+}
+```
+
+A car in a request body (`fuelType` is PETROL, DIESEL or LPG, and only needed for ICE).
+The `ownerId` is taken from the JWT, not from the body:
 
 ```json
 {
@@ -57,20 +94,22 @@ A car in a request body (`fuelType` is PETROL, DIESEL or LPG, and only needed fo
 
 ```
 module.yaml            dependencies and build settings
-resources/             application.yaml (host, port, database) and logback.xml
+resources/             application.yaml (host, port, database, jwt) and logback.xml
 src/rentmycar/
   Server.kt            main: reads the config and starts the server
-  Application.kt       installs JSON, error handling and the routes
+  Application.kt       installs JSON, JWT auth, error handling and the routes
   Database.kt          connects to H2, creates the tables, adds example data
+  auth/                login and JWT (lesson 6 style)
+  users/               User domain, table, repository, routes, DTOs
   cars/
     Car.kt             domain: abstract Car with IceCar, BevCar and FcevCar
     CarTable.kt        database table
     CarRepository.kt   interface CarRepository and ExposedCarRepository, which reads and writes cars
     CarRoutes.kt       HTTP endpoints
     CarDtos.kt         JSON request and response classes
-test/rentmycar/cars/   unit tests (CarTest) and HTTP tests (CarRoutesTest)
+test/rentmycar/        unit tests (CarTest) and HTTP tests for auth, users and cars
 ```
 
 Each feature gets its own folder with the same four parts: Table, Repository, Routes and Dtos.
-Later features follow `cars/`: `users/`, `reservations/` and `search/`.
+Later features follow `cars/`: `reservations/` and `search/`.
 To add one, create the table in `Database.kt` and call its routes from `routing { }` in `Application.kt`.
