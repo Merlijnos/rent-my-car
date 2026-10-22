@@ -10,4 +10,5 @@ object CarTable : IntIdTable("cars") {
     val fixedCostsPerYear = double("fixed_costs_per_year")
     val consumptionPer100Km = double("consumption_per_100_km")
     val fuelType = enumerationByName<FuelType>("fuel_type", 10).nullable()
+    val ownerId = integer("owner_id")
 }

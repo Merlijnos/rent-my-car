@@ -1,6 +1,54 @@
 @base = http://localhost:8080
 
-### All cars
+### Register as car owner
+POST {{base}}/users/register
+Content-Type: application/json
+
+{
+  "username": "marie",
+  "password": "marie123",
+  "email": "marie@rentmycar.nl",
+  "role": "OWNER"
+}
+
+### Register as renter
+POST {{base}}/users/register
+Content-Type: application/json
+
+{
+  "username": "jan",
+  "password": "jan123",
+  "email": "jan@rentmycar.nl",
+  "role": "RENTER"
+}
+
+### Login as seeded owner Paul
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "paul",
+  "password": "paul123"
+}
+
+> {% client.global.set("ownerToken", response.body.token); %}
+
+### Login as seeded renter Lisa
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "lisa",
+  "password": "lisa123"
+}
+
+> {% client.global.set("renterToken", response.body.token); %}
+
+### Current logged-in user
+GET {{base}}/users/me
+Authorization: Bearer {{ownerToken}}
+
+### All cars (public)
 GET {{base}}/cars
 
 ### Only electric cars
@@ -12,8 +60,9 @@ GET {{base}}/cars?category=ICE&maxPricePerDaypart=20
 ### One car
 GET {{base}}/cars/1
 
-### Add a car; the HTTP Client stores its id for the next requests
+### Add a car as owner; the HTTP Client stores its id for the next requests
 POST {{base}}/cars
+Authorization: Bearer {{ownerToken}}
 Content-Type: application/json
 
 {
@@ -32,6 +81,7 @@ GET {{base}}/cars/{{carId}}
 
 ### Change the price of the new car
 PUT {{base}}/cars/{{carId}}
+Authorization: Bearer {{ownerToken}}
 Content-Type: application/json
 
 {
@@ -49,8 +99,23 @@ GET {{base}}/cars/{{carId}}/costs
 ### Costs for 25000 km per year
 GET {{base}}/cars/{{carId}}/costs?kmPerYear=25000
 
+### Renter cannot add a car → 403
+POST {{base}}/cars
+Authorization: Bearer {{renterToken}}
+Content-Type: application/json
+
+{
+  "category": "BEV",
+  "brand": "Kia",
+  "model": "EV3",
+  "pricePerDaypart": 25.0,
+  "fixedCostsPerYear": 3000.0,
+  "consumptionPer100Km": 15.0
+}
+
 ### Delete the new car → 204
 DELETE {{base}}/cars/{{carId}}
+Authorization: Bearer {{ownerToken}}
 
 ### The deleted car is gone → 404
 GET {{base}}/cars/{{carId}}
@@ -66,6 +131,7 @@ GET {{base}}/cars?category=STEAM
 
 ### Consumption must be greater than 0 → 400
 POST {{base}}/cars
+Authorization: Bearer {{ownerToken}}
 Content-Type: application/json
 
 {
@@ -79,6 +145,7 @@ Content-Type: application/json
 
 ### A combustion car needs a fuel type → 400
 POST {{base}}/cars
+Authorization: Bearer {{ownerToken}}
 Content-Type: application/json
 
 {

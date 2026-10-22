@@ -51,6 +51,7 @@ class CarRepository(private val database: Database) {
             fixedCostsPerYear = this[CarTable.fixedCostsPerYear],
             consumptionPer100Km = this[CarTable.consumptionPer100Km],
             fuelType = this[CarTable.fuelType],
+            ownerId = this[CarTable.ownerId],
             id = this[CarTable.id].value,
         )
 
@@ -62,5 +63,6 @@ class CarRepository(private val database: Database) {
         this[CarTable.fixedCostsPerYear] = car.fixedCostsPerYear
         this[CarTable.consumptionPer100Km] = car.consumptionPer100Km
         this[CarTable.fuelType] = (car as? IceCar)?.fuelType
+        this[CarTable.ownerId] = car.ownerId
     }
 }

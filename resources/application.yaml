@@ -1,3 +1,8 @@
 host: "$HOST:localhost"
 port: "$PORT:8080"
 databaseUrl: "jdbc:h2:mem:rentmycar;DB_CLOSE_DELAY=-1"
+jwt:
+  secret: "rent-my-car-secret"
+  issuer: "http://localhost:8080/"
+  audience: "rent-my-car"
+  realm: "Rent my car"
