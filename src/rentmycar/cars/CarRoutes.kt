@@ -3,6 +3,7 @@ package rentmycar.cars
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.principal
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -16,12 +17,13 @@ import io.ktor.server.util.getValue
 import rentmycar.auth.ForbiddenException
 import rentmycar.auth.UserPrincipal
 import rentmycar.auth.requireRole
+import rentmycar.reservations.ReservationRepository
 import rentmycar.users.Role
 
 private const val DEFAULT_KM_PER_YEAR = 15_000
 
 /** The /cars endpoints. A missing car throws NotFoundException, which StatusPages turns into a 404. */
-fun Route.carRoutes(cars: CarRepository) = route("/cars") {
+fun Route.carRoutes(cars: CarRepository, reservations: ReservationRepository) = route("/cars") {
     get {
         val category: CarCategory? by call.queryParameters
         val maxPricePerDaypart: Double? by call.queryParameters
@@ -66,6 +68,9 @@ fun Route.carRoutes(cars: CarRepository) = route("/cars") {
             val existing = cars.findById(id) ?: throw carNotFound(id)
             if (existing.ownerId != owner.id) {
                 throw ForbiddenException("Only the owner can delete this car")
+            }
+            if (reservations.hasActiveForCar(id)) {
+                throw BadRequestException("Car $id still has active reservations")
             }
             if (!cars.delete(id)) throw carNotFound(id)
             call.respond(HttpStatusCode.NoContent)

@@ -156,3 +156,58 @@ Content-Type: application/json
   "fixedCostsPerYear": 2000.0,
   "consumptionPer100Km": 5.0
 }
+
+### Book the Polo (car 1) as Lisa. Each day is two dayparts
+POST {{base}}/reservations
+Authorization: Bearer {{renterToken}}
+Content-Type: application/json
+
+{
+  "carId": 1,
+  "startDate": "2026-09-01",
+  "endDate": "2026-09-03"
+}
+
+> {% client.global.set("reservationId", response.body.id); %}
+
+### Lisa's reservations
+GET {{base}}/reservations
+Authorization: Bearer {{renterToken}}
+
+### That booking
+GET {{base}}/reservations/{{reservationId}}
+Authorization: Bearer {{renterToken}}
+
+### Paul confirms a booking of his own car
+POST {{base}}/reservations/{{reservationId}}/confirm
+Authorization: Bearer {{ownerToken}}
+
+### The same days are taken → 400
+POST {{base}}/reservations
+Authorization: Bearer {{renterToken}}
+Content-Type: application/json
+
+{
+  "carId": 1,
+  "startDate": "2026-09-02",
+  "endDate": "2026-09-02"
+}
+
+### Lisa cancels, which frees the car
+POST {{base}}/reservations/{{reservationId}}/cancel
+Authorization: Bearer {{renterToken}}
+
+### Owner cannot book a car → 403
+POST {{base}}/reservations
+Authorization: Bearer {{ownerToken}}
+Content-Type: application/json
+
+{
+  "carId": 1,
+  "startDate": "2026-10-01",
+  "endDate": "2026-10-01"
+}
+
+### Unknown reservation → 404
+GET {{base}}/reservations/999
+Authorization: Bearer {{renterToken}}
