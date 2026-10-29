@@ -21,6 +21,9 @@ import rentmycar.auth.authRoutes
 import rentmycar.cars.CarRepository
 import rentmycar.cars.ExposedCarRepository
 import rentmycar.cars.carRoutes
+import rentmycar.reservations.ExposedReservationRepository
+import rentmycar.reservations.ReservationRepository
+import rentmycar.reservations.reservationRoutes
 import rentmycar.users.UserRepository
 import rentmycar.users.userRoutes
 
@@ -48,6 +51,7 @@ fun Application.module(databaseUrl: String, jwtConfig: JwtConfig) {
     val database = connectDatabase(databaseUrl)
     val users = UserRepository(database)
     val cars: CarRepository = ExposedCarRepository(database)
+    val reservations: ReservationRepository = ExposedReservationRepository(database)
     val jwt = JwtService(jwtConfig, users)
 
     install(Authentication) {
@@ -65,6 +69,7 @@ fun Application.module(databaseUrl: String, jwtConfig: JwtConfig) {
     routing {
         authRoutes(jwt)
         userRoutes(users)
-        carRoutes(cars)
+        carRoutes(cars, reservations)
+        reservationRoutes(reservations, cars)
     }
 }

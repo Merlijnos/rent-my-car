@@ -18,6 +18,9 @@ interface CarRepository {
 
     fun findById(id: Int): Car?
 
+    /** Cars offered by this owner, ordered by id. */
+    fun findByOwner(ownerId: Int): List<Car>
+
     /** Returns the stored car with its new id. */
     fun create(car: Car): Car
 
@@ -41,6 +44,11 @@ class ExposedCarRepository(private val database: Database) : CarRepository {
     override fun findById(id: Int): Car? =
         transaction(database) {
             CarTable.selectAll().where { CarTable.id eq id }.singleOrNull()?.toCar()
+        }
+
+    override fun findByOwner(ownerId: Int): List<Car> =
+        transaction(database) {
+            CarTable.selectAll().where { CarTable.ownerId eq ownerId }.orderBy(CarTable.id).map { it.toCar() }
         }
 
     override fun create(car: Car): Car =

@@ -3,6 +3,7 @@ package rentmycar
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDate
 import rentmycar.cars.BevCar
 import rentmycar.cars.CarRepository
 import rentmycar.cars.CarTable
@@ -10,20 +11,26 @@ import rentmycar.cars.ExposedCarRepository
 import rentmycar.cars.FcevCar
 import rentmycar.cars.FuelType
 import rentmycar.cars.IceCar
+import rentmycar.reservations.ExposedReservationRepository
+import rentmycar.reservations.Reservation
+import rentmycar.reservations.ReservationRepository
+import rentmycar.reservations.ReservationTable
 import rentmycar.users.Role
 import rentmycar.users.User
 import rentmycar.users.UserRepository
 import rentmycar.users.UserTable
 
-/** Connects to [url], creates the tables and adds the example cars. */
+/** Connects to [url], creates the tables and adds the example users, cars and reservations. */
 fun connectDatabase(url: String): Database {
     val database = Database.connect(url, driver = "org.h2.Driver")
     transaction(database) {
-        SchemaUtils.create(UserTable, CarTable)
+        SchemaUtils.create(UserTable, CarTable, ReservationTable)
     }
     val users = UserRepository(database)
     val seededUsers = seedUsers(users)
-    seedCars(ExposedCarRepository(database), seededUsers)
+    val cars = ExposedCarRepository(database)
+    seedCars(cars, seededUsers)
+    seedReservations(ExposedReservationRepository(database), cars, seededUsers)
     return database
 }
 
@@ -113,4 +120,30 @@ private fun seedCars(cars: CarRepository, users: List<User>) {
             ),
         )
     seed.forEach { cars.create(it) }
+}
+
+private fun seedReservations(reservations: ReservationRepository, cars: CarRepository, users: List<User>) {
+    val lisa = users.first { it.username == "lisa" }.id
+    val tom = users.first { it.username == "tom" }.id
+    val polo = cars.findAll().first { it.model.startsWith("Polo") }
+    val niro = cars.findAll().first { it.model == "Niro EV" }
+
+    val lisaPolo =
+        Reservation.book(
+            polo.id,
+            lisa,
+            LocalDate.parse("2026-07-06"),
+            LocalDate.parse("2026-07-08"),
+            polo.pricePerDaypart,
+        )
+    reservations.create(lisaPolo.confirm())
+    reservations.create(
+        Reservation.book(
+            niro.id,
+            tom,
+            LocalDate.parse("2026-08-10"),
+            LocalDate.parse("2026-08-10"),
+            niro.pricePerDaypart,
+        ),
+    )
 }
