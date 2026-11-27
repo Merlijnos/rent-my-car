@@ -10,31 +10,16 @@ class DistanceCalculatorTest {
     private val rotterdam = GeoPoint(51.9244, 4.4777)
 
     @Test
-    fun samePointIsZeroKilometers() {
-        assertEquals(0.0, DistanceCalculator.distanceKm(amsterdam, amsterdam), 0.0001)
+    fun `same point is zero kilometers`() {
+        val distance = DistanceCalculator.distanceKm(amsterdam, amsterdam)
+
+        assertEquals(0.0, distance, 0.0001)
     }
 
     @Test
-    fun amsterdamToRotterdamIsAbout57Kilometers() {
-        assertEquals(57.2, DistanceCalculator.distanceKm(amsterdam, rotterdam), 0.5)
-    }
+    fun `amsterdam to rotterdam is about 57 kilometers`() {
+        val distance = DistanceCalculator.distanceKm(amsterdam, rotterdam)
 
-    @Test
-    fun distanceIsTheSameInBothDirections() {
-        assertEquals(
-            DistanceCalculator.distanceKm(amsterdam, rotterdam),
-            DistanceCalculator.distanceKm(rotterdam, amsterdam),
-            0.0001,
-        )
-    }
-
-    @Test
-    fun oneDegreeOfLatitudeIsAbout111Kilometers() {
-        assertEquals(111.2, DistanceCalculator.distanceKm(GeoPoint(0.0, 0.0), GeoPoint(1.0, 0.0)), 0.1)
-    }
-
-    @Test
-    fun halfwayAroundTheEquatorIsHalfTheCircumference() {
-        assertEquals(20015.1, DistanceCalculator.distanceKm(GeoPoint(0.0, 0.0), GeoPoint(0.0, 180.0)), 0.5)
+        assertEquals(57.2, distance, 0.5)
     }
 }

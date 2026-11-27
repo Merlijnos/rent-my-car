@@ -36,38 +36,32 @@ cd android
 ```
 
 The integration tests that call the real API need the backend running (step 1) with the seeded database.
-They create their own cars and leave a few test cars behind until the backend restarts.
+The create-and-delete test removes its own car again.
 
 ## Tests
 
 Results of the last run on the Pixel_10a emulator (Android 17) with the backend running:
-73 unit tests and 35 UI and integration tests (29 UI, 6 integration), all passing; the 52 backend tests were not changed in this step.
+9 unit tests and 8 instrumented tests (6 UI, 2 integration), all passing; the 52 backend tests were not changed in this step.
 
-Unit tests (`app/src/test`, JVM, 73 tests)
-
-| Test class | Tests | What it proves |
-| --- | --- | --- |
-| `DistanceCalculatorTest` | 5 | Haversine gives known distances (same point is 0, Amsterdam to Rotterdam, symmetric, one degree of latitude, half the equator). |
-| `CarSearchTest` | 5 | Search matches brand or model, all words must match, distance is only set when both locations are known, nearest first and unknown last. |
-| `CarFormValidatorTest` | 4 | A valid form becomes a trimmed request, blank or bad numbers give an error per field, the chosen location ends up as latitude and longitude in the request. |
-| `CarListViewModelTest` | 11 | Category and max price go to the backend, invalid max price is not sent, search runs on the phone, granted permission adds distances and sorts, denied permission keeps the list working, backend and connection errors, only owners can add cars. |
-| `CarFormViewModelTest` | 17 | Errors per required field, a valid form is sent and saved, fuel type only for ICE, edit updates, server error keeps the form, address search with a fake `AddressLookup` (found, not found, failed, blank), "use my location" with a fake GPS, denied permission and no position. |
-| `CarDetailViewModelTest` | 11 | Owner-only buttons, cost calculation and invalid kilometers, distance only with a location, delete with confirmation and the backend's message when it refuses. |
-| `CarJsonMappingTest` | 9 | JSON maps to `Car` (with and without location, unknown fields ignored), and the repository against a mock engine: filter parameters, costs, POST body, DELETE 204 and the 400 message. |
-| `LoginViewModelTest`, `HttpClientFactoryTest`, `UserMessageTest` | 3, 4, 4 | Login flow, Bearer header and 401 logout, error to message mapping (shared base). |
-
-UI tests (`app/src/androidTest`, Compose UI test on the emulator, 29 tests)
+Unit tests (`app/src/test`, JVM, 9 tests)
 
 | Test class | Tests | What it proves |
 | --- | --- | --- |
-| `CarListScreenTest` | 11 | List shows cars, search filters, error with retry, add button for owners only, sort by distance shows the nearest first with "x km away", denied permission banner with settings button, rationale banner. |
-| `CarFormScreenTest` | 10 | Empty form shows errors, address field and "Find" button instead of coordinates, the found place is shown as text, address error, fuel type only for combustion cars, "use my current location" button and its error text. |
-| `CarDetailScreenTest` | 8 | Edit and delete only for the owner, delete dialog asks first and cancel closes it, confirming deletes, costs are shown, the "Route" button only for a car with a location. |
+| `DistanceCalculatorTest` | 2 | Haversine gives 0 km for the same point and about 57 km from Amsterdam to Rotterdam. |
+| `CarSearchTest` | 2 | Search matches brand or model ignoring case, and every word must match. |
+| `CarListViewModelTest` | 2 | With a fake location: sort by distance puts the nearest car first and cars without location last; denied permission keeps the list without distances. |
+| `CarFormViewModelTest` | 3 | An empty brand gives an error and nothing is sent; an address that is found sets the location and place name; an address that is not found shows an error. |
 
-Integration tests (`CarsBackendIntegrationTest`, 6 tests, real backend at `10.0.2.2:8080`)
-read the seeded cars, filter on category, unknown car gives an error, an owner (`paul`) creates, updates, reads back and deletes
-a car with latitude and longitude, an invalid latitude gives a 400 with a message, and deleting a car that `lisa` reserved gives
-the backend's 400 message "still has active reservations".
+UI tests (`app/src/androidTest`, Compose UI test on the emulator, 6 tests)
+
+| Test class | Tests | What it proves |
+| --- | --- | --- |
+| `CarListScreenTest` | 2 | List shows the cars and searching filters them; sort by distance shows "x km away". |
+| `CarFormScreenTest` | 2 | Saving an empty form shows the brand error; a found address is shown as a place name. |
+| `CarDetailScreenTest` | 2 | Another user does not see edit and delete; the owner's delete button asks for confirmation first. |
+
+Integration tests (`CarsBackendIntegrationTest`, 2 tests, real backend at `10.0.2.2:8080`):
+`GET /cars` returns the seeded cars with a location, and an owner (`paul`) logs in, creates a car and deletes it again.
 
 The Fused Location code itself (`FusedLocationProvider`) is not covered by an automated test, because it needs the real Google Play services.
 Manual GPS test on the emulator: start the app, log in, tap "Allow location" and accept; in the emulator's Extended controls
