@@ -11,4 +11,6 @@ object CarTable : IntIdTable("cars") {
     val consumptionPer100Km = double("consumption_per_100_km")
     val fuelType = enumerationByName<FuelType>("fuel_type", 10).nullable()
     val ownerId = integer("owner_id")
+    val latitude = double("latitude").nullable()
+    val longitude = double("longitude").nullable()
 }

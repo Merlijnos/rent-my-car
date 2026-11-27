@@ -191,4 +191,67 @@ class CarRoutesTest {
         val response = http.putCar(carId, tesla.copy(pricePerDaypart = 10.0), saraToken)
         assertEquals(HttpStatusCode.Forbidden, response.status)
     }
+
+    @Test
+    fun `seeded cars have a location in the Breda and Den Bosch area`() = testApplication {
+        val http = startApp()
+
+        val cars = http.get("/cars").body<List<CarResponse>>()
+        assertTrue(cars.isNotEmpty())
+        cars.forEach {
+            assertTrue(it.latitude!! in 51.5..51.8, "latitude of car ${it.id}")
+            assertTrue(it.longitude!! in 4.6..5.5, "longitude of car ${it.id}")
+        }
+    }
+
+    @Test
+    fun `post and put store the location and get returns it`() = testApplication {
+        val http = startApp()
+        val token = http.ownerToken()
+        val located = tesla.copy(latitude = 51.589, longitude = 4.776)
+
+        val created = http.postCar(located, token).body<CarResponse>()
+        assertEquals(51.589, created.latitude)
+        assertEquals(4.776, created.longitude)
+
+        val moved = http.putCar(created.id, located.copy(latitude = 51.699, longitude = 5.304), token)
+        assertEquals(HttpStatusCode.OK, moved.status)
+        val fetched = http.get("/cars/${created.id}").body<CarResponse>()
+        assertEquals(51.699, fetched.latitude)
+        assertEquals(5.304, fetched.longitude)
+    }
+
+    @Test
+    fun `a car without a location returns null coordinates`() = testApplication {
+        val http = startApp()
+        val token = http.ownerToken()
+
+        val created = http.postCar(tesla, token).body<CarResponse>()
+        assertEquals(null, created.latitude)
+        assertEquals(null, created.longitude)
+    }
+
+    @Test
+    fun `invalid location returns 400`() = testApplication {
+        val http = startApp()
+        val token = http.ownerToken()
+
+        val onlyLatitude = http.postCar(tesla.copy(latitude = 51.589), token)
+        assertEquals(HttpStatusCode.BadRequest, onlyLatitude.status)
+        assertEquals(
+            ErrorResponse("latitude and longitude must both be set or both be empty"),
+            onlyLatitude.body<ErrorResponse>(),
+        )
+
+        val latitudeTooHigh = http.postCar(tesla.copy(latitude = 91.0, longitude = 4.776), token)
+        assertEquals(HttpStatusCode.BadRequest, latitudeTooHigh.status)
+        assertEquals(ErrorResponse("latitude must be between -90 and 90"), latitudeTooHigh.body<ErrorResponse>())
+
+        val longitudeTooLow = http.postCar(tesla.copy(latitude = 51.589, longitude = -181.0), token)
+        assertEquals(HttpStatusCode.BadRequest, longitudeTooLow.status)
+        assertEquals(ErrorResponse("longitude must be between -180 and 180"), longitudeTooLow.body<ErrorResponse>())
+
+        val id = http.postCar(tesla, token).body<CarResponse>().id
+        assertEquals(HttpStatusCode.BadRequest, http.putCar(id, tesla.copy(longitude = 4.776), token).status)
+    }
 }

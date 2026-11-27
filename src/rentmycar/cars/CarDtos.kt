@@ -12,6 +12,8 @@ data class CarRequest(
     val fixedCostsPerYear: Double,
     val consumptionPer100Km: Double,
     val fuelType: FuelType? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 ) {
     fun toCar(ownerId: Int, id: Int = 0): Car =
         Car.create(
@@ -24,6 +26,8 @@ data class CarRequest(
             fuelType,
             ownerId,
             id,
+            latitude,
+            longitude,
         )
 }
 
@@ -38,6 +42,8 @@ data class CarResponse(
     val consumptionPer100Km: Double,
     val fuelType: FuelType?,
     val ownerId: Int,
+    val latitude: Double?,
+    val longitude: Double?,
 )
 
 @Serializable
@@ -59,6 +65,8 @@ fun Car.toResponse() =
         consumptionPer100Km = consumptionPer100Km,
         fuelType = (this as? IceCar)?.fuelType,
         ownerId = ownerId,
+        latitude = latitude,
+        longitude = longitude,
     )
 
 fun Car.toCostsResponse(kmPerYear: Int) =

@@ -78,6 +78,8 @@ class ExposedCarRepository(private val database: Database) : CarRepository {
             fuelType = this[CarTable.fuelType],
             ownerId = this[CarTable.ownerId],
             id = this[CarTable.id].value,
+            latitude = this[CarTable.latitude],
+            longitude = this[CarTable.longitude],
         )
 
     private fun UpdateBuilder<*>.setValues(car: Car) {
@@ -89,5 +91,7 @@ class ExposedCarRepository(private val database: Database) : CarRepository {
         this[CarTable.consumptionPer100Km] = car.consumptionPer100Km
         this[CarTable.fuelType] = (car as? IceCar)?.fuelType
         this[CarTable.ownerId] = car.ownerId
+        this[CarTable.latitude] = car.latitude
+        this[CarTable.longitude] = car.longitude
     }
 }

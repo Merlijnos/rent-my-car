@@ -71,7 +71,9 @@ Content-Type: application/json
   "model": "Elroq 85",
   "pricePerDaypart": 30.0,
   "fixedCostsPerYear": 3800.0,
-  "consumptionPer100Km": 15.8
+  "consumptionPer100Km": 15.8,
+  "latitude": 51.5890,
+  "longitude": 4.7760
 }
 
 > {% client.global.set("carId", response.body.id); %}
@@ -79,7 +81,7 @@ Content-Type: application/json
 ### The new car
 GET {{base}}/cars/{{carId}}
 
-### Change the price of the new car
+### Change the price and location of the new car (latitude and longitude are optional, but come as a pair)
 PUT {{base}}/cars/{{carId}}
 Authorization: Bearer {{ownerToken}}
 Content-Type: application/json
@@ -90,7 +92,9 @@ Content-Type: application/json
   "model": "Elroq 85",
   "pricePerDaypart": 27.5,
   "fixedCostsPerYear": 3800.0,
-  "consumptionPer100Km": 15.8
+  "consumptionPer100Km": 15.8,
+  "latitude": 51.6978,
+  "longitude": 5.3037
 }
 
 ### Costs for 15000 km per year (the default)
@@ -155,6 +159,37 @@ Content-Type: application/json
   "pricePerDaypart": 14.0,
   "fixedCostsPerYear": 2000.0,
   "consumptionPer100Km": 5.0
+}
+
+### Latitude without longitude → 400
+POST {{base}}/cars
+Authorization: Bearer {{ownerToken}}
+Content-Type: application/json
+
+{
+  "category": "BEV",
+  "brand": "Kia",
+  "model": "EV3",
+  "pricePerDaypart": 25.0,
+  "fixedCostsPerYear": 3000.0,
+  "consumptionPer100Km": 15.0,
+  "latitude": 51.5890
+}
+
+### Latitude outside -90..90 → 400
+POST {{base}}/cars
+Authorization: Bearer {{ownerToken}}
+Content-Type: application/json
+
+{
+  "category": "BEV",
+  "brand": "Kia",
+  "model": "EV3",
+  "pricePerDaypart": 25.0,
+  "fixedCostsPerYear": 3000.0,
+  "consumptionPer100Km": 15.0,
+  "latitude": 95.0,
+  "longitude": 4.7760
 }
 
 ### Book the Polo (car 1) as Lisa. Each day is two dayparts

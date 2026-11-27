@@ -61,4 +61,38 @@ class CarTest {
             Car.create(CarCategory.ICE, "Skoda", "Octavia", 22.5, 3_600.0, 4.6, fuelType = null)
         }
     }
+
+    @Test
+    fun `location is optional`() {
+        val withoutLocation = BevCar("Kia", "Niro EV", 27.5, 3_400.0, 16.0)
+        val withLocation = BevCar("Kia", "Niro EV", 27.5, 3_400.0, 16.0, latitude = 51.589, longitude = 4.776)
+
+        assertEquals(null, withoutLocation.latitude)
+        assertEquals(null, withoutLocation.longitude)
+        assertEquals(51.589, withLocation.latitude)
+        assertEquals(4.776, withLocation.longitude)
+    }
+
+    @Test
+    fun `latitude and longitude must both be set or both be empty`() {
+        assertFailsWith<IllegalArgumentException> { BevCar("Kia", "Niro EV", 27.5, 3_400.0, 16.0, latitude = 51.589) }
+        assertFailsWith<IllegalArgumentException> { BevCar("Kia", "Niro EV", 27.5, 3_400.0, 16.0, longitude = 4.776) }
+    }
+
+    @Test
+    fun `latitude and longitude must be within range`() {
+        assertFailsWith<IllegalArgumentException> {
+            BevCar("Kia", "Niro EV", 27.5, 3_400.0, 16.0, latitude = 90.1, longitude = 0.0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BevCar("Kia", "Niro EV", 27.5, 3_400.0, 16.0, latitude = -90.1, longitude = 0.0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BevCar("Kia", "Niro EV", 27.5, 3_400.0, 16.0, latitude = 0.0, longitude = 180.1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BevCar("Kia", "Niro EV", 27.5, 3_400.0, 16.0, latitude = 0.0, longitude = -180.1)
+        }
+        BevCar("Kia", "Niro EV", 27.5, 3_400.0, 16.0, latitude = -90.0, longitude = 180.0)
+    }
 }

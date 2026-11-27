@@ -27,6 +27,8 @@ Open `requests.http` in IntelliJ to call every endpoint in order.
 ./kotlin test
 ```
 
+The Android app, its tests and results, and how AI was used are described in [android/README.md](android/README.md).
+
 ## Seeded users
 
 | Username | Password | Role |
@@ -46,10 +48,10 @@ Tom has a pending booking of Sara's Niro EV on 2026-08-10.
 | POST | `/users/register` | — | Creates a user (role `OWNER` or `RENTER`): 201 |
 | POST | `/auth/login` | — | Returns a JWT: `{"token":"..."}` , or 401 |
 | GET | `/users/me` | Bearer | The logged-in user (without password) |
-| GET | `/cars` | — | All cars, optionally filtered with `?category=BEV` and `?maxPricePerDaypart=25` |
+| GET | `/cars` | — | All cars with their optional `latitude` and `longitude`, optionally filtered with `?category=BEV` and `?maxPricePerDaypart=25` |
 | GET | `/cars/{id}` | — | One car, or 404 |
-| POST | `/cars` | OWNER | Creates a car linked to the logged-in owner: 201 |
-| PUT | `/cars/{id}` | OWNER | Replaces own car: 200, or 403/404 |
+| POST | `/cars` | OWNER | Creates a car linked to the logged-in owner: 201. Optional `latitude` and `longitude` (-90..90, -180..180), both or neither |
+| PUT | `/cars/{id}` | OWNER | Replaces own car, including its optional location: 200, or 403/404 |
 | DELETE | `/cars/{id}` | OWNER | Deletes own car: 204, or 403/404. 400 while a pending or confirmed reservation exists |
 | GET | `/cars/{id}/costs?kmPerYear=15000` | — | Cost per km and total cost of ownership (default 15000 km) |
 | POST | `/reservations` | RENTER | Books a car from `startDate` through `endDate` (inclusive): 201 |

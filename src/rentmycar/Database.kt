@@ -59,6 +59,8 @@ private fun seedCars(cars: CarRepository, users: List<User>) {
                 consumptionPer100Km = 5.4,
                 fuelType = FuelType.PETROL,
                 ownerId = paul,
+                latitude = 51.5719,
+                longitude = 4.7683,
             ),
             IceCar(
                 brand = "Skoda",
@@ -68,6 +70,8 @@ private fun seedCars(cars: CarRepository, users: List<User>) {
                 consumptionPer100Km = 4.6,
                 fuelType = FuelType.DIESEL,
                 ownerId = paul,
+                latitude = 51.6978,
+                longitude = 5.3037,
             ),
             IceCar(
                 brand = "Dacia",
@@ -77,6 +81,8 @@ private fun seedCars(cars: CarRepository, users: List<User>) {
                 consumptionPer100Km = 7.2,
                 fuelType = FuelType.LPG,
                 ownerId = sara,
+                latitude = 51.589,
+                longitude = 4.776,
             ),
             BevCar(
                 brand = "Kia",
@@ -85,6 +91,8 @@ private fun seedCars(cars: CarRepository, users: List<User>) {
                 fixedCostsPerYear = 3_400.0,
                 consumptionPer100Km = 16.2,
                 ownerId = sara,
+                latitude = 51.689,
+                longitude = 5.299,
             ),
             BevCar(
                 brand = "Tesla",
@@ -93,6 +101,8 @@ private fun seedCars(cars: CarRepository, users: List<User>) {
                 fixedCostsPerYear = 4_000.0,
                 consumptionPer100Km = 14.5,
                 ownerId = paul,
+                latitude = 51.586,
+                longitude = 4.793,
             ),
             BevCar(
                 brand = "Volkswagen",
@@ -101,6 +111,8 @@ private fun seedCars(cars: CarRepository, users: List<User>) {
                 fixedCostsPerYear = 3_200.0,
                 consumptionPer100Km = 15.5,
                 ownerId = sara,
+                latitude = 51.708,
+                longitude = 5.32,
             ),
             FcevCar(
                 brand = "Toyota",
@@ -109,6 +121,8 @@ private fun seedCars(cars: CarRepository, users: List<User>) {
                 fixedCostsPerYear = 5_200.0,
                 consumptionPer100Km = 0.79,
                 ownerId = paul,
+                latitude = 51.593,
+                longitude = 4.74,
             ),
             FcevCar(
                 brand = "Hyundai",
@@ -117,6 +131,8 @@ private fun seedCars(cars: CarRepository, users: List<User>) {
                 fixedCostsPerYear = 4_800.0,
                 consumptionPer100Km = 0.95,
                 ownerId = sara,
+                latitude = 51.68,
+                longitude = 5.31,
             ),
         )
     seed.forEach { cars.create(it) }
